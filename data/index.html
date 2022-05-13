@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Metric consumer</title>
+
+    <style>
+        body {
+            color: aliceblue;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: lightslategrey;
+        }
+
+        form {
+            display: table;
+        }
+
+        .frame {
+            border: 1px blanchedalmond solid;
+            border-radius: 5px;
+            padding: 10px;
+            width: 98%;
+            margin-bottom: 10px;
+        }
+
+        form p {
+            display: table-row;
+        }
+
+        form label {
+            display: table-cell;
+        }
+
+        form input {
+            display: table-cell;
+            border-radius: 5px;
+            width: 98%;
+        }
+
+        .submit {
+            width: 100%;
+            background-color: cornflowerblue;
+            border: 1px solid bisque;
+            border-radius: 5px;
+            color: aliceblue;
+            margin-top: 20px;
+        }
+
+        .read {
+            background-color: rgb(51, 148, 80);
+            border: 1px solid bisque;
+            border-radius: 5px;
+            padding: 5px;
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+
+        .lectura {
+            display: inline-block;
+        }
+
+        .power {
+            font-size: 160px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Metric consumer</h1>
+    <form class="frame" action="/wifi" method="post">
+        <div>
+            <label for="ssid">SSID: </label>
+            <input type="text" name="ssid" />
+        </div>
+
+        <div>
+            <label for="psk">Password: </label>
+            <input type="text" name="psk" />
+        </div>
+
+        <input class="submit" type="submit" value="Submit">
+    </form>
+
+    <form class="frame" action="/config" method="post">
+        <div>
+            <label for="alarmPower">Alarm power threshold: </label>
+            <input type="number" name="alarmPower" />
+        </div>
+
+        <input class="submit" type="submit" value="Submit">
+    </form>
+
+    <div class="frame">
+        <div class="lectura">
+            <label>Voltage: </label>
+            <label class="read">240v</label>
+        </div>
+        <div class="lectura">
+            <label>Intensity: </label>
+            <label id="intensity" class="read">6.236A</label>
+        </div>
+    </div>
+
+    <div id="power" class="power">
+        3400W
+    </div>
+
+</body>
+<script>
+
+    const connection = new WebSocket('ws://' + "192.168.3.69" + '/ws');
+    const powerDiv = document.getElementById("power");
+    const intensityLabel = document.getElementById("intensity");
+
+    // When the connection is open, send some data to the server
+    connection.onopen = function () {
+        console.log('Connection opened.');
+        //connection.send('Ping'); // Send the message 'Ping' to the server
+    };
+
+    // Log errors
+    connection.onerror = function (error) {
+        console.log('WebSocket Error ' + error);
+    };
+
+    // Log messages from the server
+    connection.onmessage = function (e) {
+        console.log('Server: ' + e.data);
+        powerDiv.innerHTML = (e.data * 240) + "W";
+        intensityLabel.innerHTML = e.data + "A";
+    };
+</script>
+
+</html>
